@@ -3,11 +3,11 @@
 {%block contents%}
 
 <h1>팀 목록</h1>
-<div class="list-group mt-4">
+<div class="list-group mt-4" style="max-width:600px">
     <!-- 유저가 팀 있을시 -->
     {% if user_team %}
     <a href="{% url 'team_calendar:calendar_view'%}" class="list-group-item list-group-item-action">
-        My Team : {{user_team|truncatewords:5}}
+        <b>My Team : {{user_team|truncatewords:5}}</b>
         {% for team in team_list %}
             {% if team.team_name == user_team %}
         <li>팀장 : {{ team.team_manager  }}</li>
@@ -26,31 +26,34 @@
     -->
 
     {% for team in team_list %}
-        {% if team.team_name != user_team%}
-            <a class="list-group-item list-group-item-action">
-            {{team.team_name|truncatewords:5}}
-            <li>팀장 : {{ team.team_manager }}</li>
-            {% if login%}
-                {% if user_team == None %}
-                    {% if user_request_to != None %}
-                        {% if user_request_to == team.team_name%}
-                        <a>승인 대기 중 <a>
-                        <a href= "{% url 'team_calendar:cancel_request' %}" class="btn btn-warning btn-sm mt-2">
-                            요청 취소
-                        </a>
-                        {% endif%}
-                    {% else%}
-                        <form method = "post" action = "{% url 'team_calendar:join_team' team.team_name %}" class="mt-2">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary btn-sm">가입 요청</button>
-                        </form>
-                {% endif%}
-            {% endif%}
-        {% endif %}
-            </a>
-        {% endif%}
-
-        {% empty %}
+    {% if team.team_name != user_team %}
+        <a class="list-group-item list-group-item-action" style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <b>{{ team.team_name|truncatewords:5 }}</b>
+                <li>팀장 : {{ team.team_manager }}</li>
+            </div>
+            <div style="margin-left: auto; display: flex; gap: 10px;">
+                {% if login %}
+                    {% if user_team == None %}
+                        {% if user_request_to != None %}
+                            {% if user_request_to == team.team_name %}
+                                <form method="post" action="{% url 'team_calendar:cancel_request' %}" class="mt-2">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning btn-sm"><b>요청 취소</b></button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <form method="post" action="{% url 'team_calendar:join_team' team.team_name %}" class="mt-2">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-sm"><b>가입 요청</b></button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </div>
+        </a>
+    {% endif %}
+    {% empty %}
         <b>등록된 팀이 없습니다.</b>
     {% endfor%}
 

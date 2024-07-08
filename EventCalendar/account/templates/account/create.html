@@ -4,7 +4,7 @@
 
 {% block title%}가입{% endblock title%}
 {% block contents %}
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" style="max-width:600px">
     {% csrf_token %}
 
     {% bootstrap_form form %}

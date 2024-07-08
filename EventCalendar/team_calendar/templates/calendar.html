@@ -12,6 +12,14 @@
             position: relative;
             width : 185px;
         }
+        .overloaded{
+            height: 100px;
+            text-align: center;
+            vertical-align: top;
+            cursor: pointer;
+            position: relative;
+            width : 185px;
+        }
         .selected {
             background-color: #f8d7da !important;
         }
@@ -24,10 +32,13 @@
         .sunday {
             color: red !important;
         }
-
         .saturday{
             color: blue !important;
         }
+        .highlight{
+            background-color: rgba(255, 0, 0, 0.2) !important;
+        }
+        
     </style>
 </head>
 <body>
@@ -101,7 +112,21 @@
         {% for week in calendar %}
         <tr>
             {% for day in week %}
-            <td class="day-cell" data-day="{{ day }}">
+            <td class=" 
+                {% for key, values in schedules %}
+                    {% if day == key%}
+                        highlight
+                        {% if values|length >= 6%}
+                            overloaded
+                        {% else%}
+                            day-cell
+                        {% endif%}
+                    {%else%}
+                    day-cell
+                    {% endif%}
+                {%endfor%}
+                "
+                data-day="{{ day }}">
                 {% if day != 0 %}
                 <div class="{% if forloop.counter0 == 0 %}sunday{% elif forloop.counter0 == 6 %}saturday{% endif %}">
                     {{ day }}
@@ -113,15 +138,14 @@
                     {% if day == key%}
                         {%for schedule in values %}
                     <div class="schedule-item">
-                        <br> {{schedule.user_name}} : {{ schedule.start_time }}~{{ schedule.end_time }} <br>사유:{{schedule.memo}}
-                        
-                    </span>
+                        <span> {{schedule.user_name}} : {{ schedule.start_time }}~{{ schedule.end_time }} <br>사유:{{schedule.memo}}
+                        </span>
                         {% if schedule.is_user_schedule %}
                             <form method="post" action="{% url 'team_calendar:delete_schedule' schedule.id %}" style="display: inline;" onsubmit="updateYearMonth()">
                                 {% csrf_token %}
                                 <input type="hidden" id="year" name="year" value="{{ current_year }}">
                                 <input type="hidden" id="month" name="month" value="{{ current_month }}">
-                                <button type="submit" class="btn-close" aria-label="Close"></button>
+                                <button type="submit" class="btn-close" aria-label="Close" onclick="event.stopPropagation();"></button>
                             </form>
                         {% endif %}
                     </div>
@@ -192,17 +216,30 @@
             modal.show();
         });
     });
+
+    document.querySelectorAll('.overloaded').forEach(function(day) {
+        day.addEventListener('click', function() {
+            alert("일정이 너무 많습니다");
+        });
+    });
+
+    document.querySelectorAll('.btn-close').forEach(function(button) {
+    button.addEventListener('click', function(event) {
+        event.stopPropagation();
+        });
+    });
+
     function updateYearMonth() {
             document.getElementById('year').value = document.getElementById('yearSelect').value;
             document.getElementById('month').value = document.getElementById('monthSelect').value;
         }
     
     document.getElementById("timeForm").onsubmit = function(event) {
-    event.preventDefault(); // Prevent form from submitting normally
-    if (time_valid()) {
-        this.submit(); // Submit the form if validation passes
-    }
-};
+        event.preventDefault(); 
+            if (time_valid()) {
+            this.submit(); 
+        }   
+    };
 
     function time_valid(){
         var start_time = document.getElementById('start_time').value;
@@ -212,7 +249,6 @@
             return false;
         }
         else {
-            console.log('sdsd')
         return true;
         }
     }

@@ -4,7 +4,7 @@
 
 {% block title%}수정{% endblock title%}
 {% block contents %}
-<form method="post">
+<form method="post" style="max-width:600px">
     {% csrf_token %}
 
     {% bootstrap_form form %}   

@@ -7,7 +7,7 @@
 {% if errorMessage != None %}
     <span class="text-danger">{{errorMessage}}</span>
 {% endif %}
-<form method="post">
+<form method="post" style="max-width:600px">
     {% csrf_token %}
 
     {% bootstrap_form form %}
