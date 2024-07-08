@@ -1,0 +1,113 @@
+<!-- account/templates/account/detail.html -->
+{% extends 'layout.html'%}
+{% block title%}My Info{% endblock title%}
+
+{% block contents%}
+<table class="table">
+    <tr>
+        <th>계정명</th>
+        <td>{{object.username}}</td>
+    </tr>
+    <tr>
+        <th>이름</th>
+        <td>{{object.name}}</td>
+    </tr>
+    {% if object.team %}
+    <tr>
+        <th>소속팀</th>
+        <td>{{object.team}}</td>       
+    </tr> 
+    <tr>
+        <th>팀원</th>
+        <td>{{team.team_manager}}</td>
+        {%if team.member1%}
+        <td>{{team.member1}}
+            <form method="post" action="{% url 'account:user_expel'%}">
+                {% csrf_token %}
+                <input type="hidden" name="member_id" value="1">
+                탈퇴<button type="submit" class="btn-close" aria-label="Close"></button>
+            </form>
+        </td>
+        {% endif%}
+        {%if team.member2%}
+        <td>{{team.member2}}
+            <form method="post" action="{% url 'account:user_expel'%}">
+                {% csrf_token %}
+                <input type="hidden" name="member_id" value="2">
+                탈퇴<button type="submit" class="btn-close" aria-label="Close"></button>
+            </form>
+        </td>
+        {% endif%}
+        {%if team.member3%}
+        <td>{{team.member3}}
+            <form method="post" action="{% url 'account:user_expel'%}">
+                {% csrf_token %}
+                <input type="hidden" name="member_id" value="3">
+                탈퇴<button type="submit" class="btn-close" aria-label="Close"></button>
+            </form>
+        </td>
+        {% endif%}
+
+    </tr>
+    {% else%}
+    <th>소속팀</th>
+    <td>소속 팀이 없습니다.</td>
+    {% endif%}
+</table>
+
+{%if object.is_team_manager%}
+    <table class="table">
+
+    <tr><th>가입 요청 항목</th></tr>
+        {% for req in req_user%}
+        <td>
+            {{req.name}} 님이 요청하셨습니다. 수락하시겠습니까?
+            <form method=post action = "{% url 'account:approve_request' req.id%}">
+                {% csrf_token %}
+            <button type="submit" class ="btn btn-dark btn-sm">수락</button>
+            </form>
+            <form method=post action = "{% url 'account:reject_request' req.id%}">
+                {% csrf_token %}
+            <button type="submit" class ="btn btn-danger btn-sm">거절</button>
+            </form>
+            {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+        </td>
+    <!-- 팀원 꽉찼는지 확인-->
+    <!-- 수락버튼 누르면 팀원 빈자리에 집어넣기-->
+    <!--해당유저의 request_to None으로-->
+        {% empty %}
+        <td> 팀 가입 요청이 없습니다</td>
+        {% endfor%}
+    </table>
+{% endif %}
+
+
+<div class="mt-3">
+    <a href="{% url 'account:password_change' %}" class="btn btn-primary">패스워드변경</a>
+    <a href="{% url 'account:update' %}" class="btn btn-primary">정보 수정</a>
+    <a href="{% url 'account:delete' %}" class="btn btn-danger" onclick="return confirmDelete();">회원 탈퇴</a>
+    
+{%if object.team%} <!-- 팀에 속한 경우만 탈퇴버튼-->
+    <a href="{% url 'account:team_delete' %}" class="btn btn-danger"onclick="return confirmDelete();"> 팀 탈퇴</a>
+{% endif%}
+</div>
+
+<script>
+    {% if messages %}
+        var messages = [];
+        {% for message in messages %}
+            messages.push("{{ message }}");
+        {% endfor %}
+        alert(messages.join("\\n"));
+    {% endif %}
+    function confirmDelete() {
+        return confirm("정말 탈퇴하시겠습니까?");
+    }
+</script>
+{% endblock contents%}

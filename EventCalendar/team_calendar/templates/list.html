@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+{% block title%}팀 목록{%endblock title%}
+{%block contents%}
+
+<h1>팀 목록</h1>
+<div class="list-group mt-4">
+    <!-- 유저가 팀 있을시 -->
+    {% if user_team %}
+    <a href="{% url 'team_calendar:calendar_view'%}" class="list-group-item list-group-item-action">
+        My Team : {{user_team|truncatewords:5}}
+        {% for team in team_list %}
+            {% if team.team_name == user_team %}
+        <li>팀장 : {{ team.team_manager  }}</li>
+            {% endif %}
+        {% endfor %}        
+    </a>
+        
+    {% endif%}
+
+    <!-- 할것
+    1. 유저가 팀 있을시 마이팀 표시 제일 위에
+    2. 팀 리스트에서 팀 목록 가져와서 하나씩 표시
+    2-1. 유저가 가입 팀이 없을 경우
+    2-1-1 유저가 신청 팀이 없을 경우 : 팀 목록 옆에 신청 버튼 표시
+    2-1-2 유저가 신청 팀이 있는 경우 : 팀 목록 옆에 신청 버튼 없음
+    -->
+
+    {% for team in team_list %}
+        {% if team.team_name != user_team%}
+            <a class="list-group-item list-group-item-action">
+            {{team.team_name|truncatewords:5}}
+            <li>팀장 : {{ team.team_manager }}</li>
+            {% if login%}
+                {% if user_team == None %}
+                    {% if user_request_to != None %}
+                        {% if user_request_to == team.team_name%}
+                        <a>승인 대기 중 <a>
+                        <a href= "{% url 'team_calendar:cancel_request' %}" class="btn btn-warning btn-sm mt-2">
+                            요청 취소
+                        </a>
+                        {% endif%}
+                    {% else%}
+                        <form method = "post" action = "{% url 'team_calendar:join_team' team.team_name %}" class="mt-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-sm">가입 요청</button>
+                        </form>
+                {% endif%}
+            {% endif%}
+        {% endif %}
+            </a>
+        {% endif%}
+
+        {% empty %}
+        <b>등록된 팀이 없습니다.</b>
+    {% endfor%}
+
+</div>
+{% endblock contents%}
+
+
+
